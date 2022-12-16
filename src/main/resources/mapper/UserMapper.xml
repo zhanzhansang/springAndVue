@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.su.springandvue.mapper.UserMapper">
+     <resultMap id="pageUser" type="com.su.springandvue.entity.User">
+         <id column="id" property="id"/>
+         <result column="username" property="username"/>
+         <result column="nickname" property="nickname"/>
+         <result column="password" property="password"/>
+         <result column="email" property="email"/>
+         <result column="phone" property="phone"/>
+         <result column="address" property="address"/>
+         <result column="create_time" property="createTime"/>
+         <result column="avatar_url" property="avatarUrl"/>
+         <result column="role" property="role"/>
+         <collection property="courses" javaType="java.util.List" ofType="com.su.springandvue.entity.Course">
+             <result column="teacherCourseName" property="name"/>
+             <result column="teacherScore" property="score"/>
+             <result column="times" property="times"/>
+         </collection>
+         <collection property="stuCourses" javaType="java.util.List" ofType="com.su.springandvue.entity.Course">
+             <result column="stuCourseName" property="name"/>
+             <result column="stuScore" property="score"/>
+             <result column="stuTimes" property="times"/>
+         </collection>
+     </resultMap>
+
+    <select id="findPage" resultMap="pageUser">
+        select sys_user.*,tc.name as teacherCourseName ,tc.score as teacherScore,tc.times as times,
+        sc.name as stuCourseName,sc.score as stuScore,sc.times as stuTimes
+        from sys_user
+        left join student_course on sys_user.id = student_course.student_id
+        left join course sc on  student_course.course_id = sc.id and sc.state = 1
+        left join course tc on sys_user.id = tc.teacher_id and tc.state = 1
+        <where>
+            <if test="username != null">
+                and sys_user.username like '%${username}%'
+            </if>
+        </where>
+        order by sys_user.id
+    </select>
+</mapper>
